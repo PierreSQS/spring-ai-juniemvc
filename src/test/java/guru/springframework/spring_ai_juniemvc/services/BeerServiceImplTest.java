@@ -76,29 +76,6 @@ class BeerServiceImplTest {
         assertThat(list).hasSize(2);
     }
 
-    @Test
-    @DisplayName("updateById when found updates and returns true")
-    void updateById_found() {
-        Beer existing = sample(1);
-        Beer update = sample(null);
-        update.setBeerName("New Name");
-        given(beerRepository.findById(eq(1))).willReturn(Optional.of(existing));
-        given(beerRepository.save(any(Beer.class))).willAnswer(invocation -> invocation.getArgument(0));
-
-        boolean updated = beerService.updateById(1, update);
-
-        assertThat(updated).isTrue();
-        assertThat(existing.getBeerName()).isEqualTo("New Name");
-        verify(beerRepository).save(any(Beer.class));
-    }
-
-    @Test
-    @DisplayName("updateById when not found returns false")
-    void updateById_notFound() {
-        given(beerRepository.findById(eq(99))).willReturn(Optional.empty());
-        boolean updated = beerService.updateById(99, sample(null));
-        assertThat(updated).isFalse();
-    }
 
     @Test
     @DisplayName("deleteById when exists returns true and deletes")

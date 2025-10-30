@@ -102,7 +102,9 @@ class BeerControllerTest {
     @DisplayName("PUT /api/v1/beer/{id} when found returns 204")
     void update_found_returns204() throws Exception {
         Beer update = getSampleBeer(null);
-        given(beerService.updateById(eq(1), any(Beer.class))).willReturn(true);
+        // Controller now checks existence, then calls create() to perform update
+        given(beerService.findById(eq(1))).willReturn(Optional.of(getSampleBeer(1)));
+        given(beerService.create(any(Beer.class))).willReturn(getSampleBeer(1));
 
         mockMvc.perform(put("/api/v1/beer/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +117,7 @@ class BeerControllerTest {
     @DisplayName("PUT /api/v1/beer/{id} when not found returns 404")
     void update_notFound_returns404() throws Exception {
         Beer update = getSampleBeer(null);
-        given(beerService.updateById(eq(99), any(Beer.class))).willReturn(false);
+        given(beerService.findById(eq(99))).willReturn(Optional.empty());
 
         mockMvc.perform(put("/api/v1/beer/{id}", 99)
                         .contentType(MediaType.APPLICATION_JSON)

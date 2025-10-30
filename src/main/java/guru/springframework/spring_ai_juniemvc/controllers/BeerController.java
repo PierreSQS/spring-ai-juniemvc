@@ -50,8 +50,15 @@ public class BeerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Integer id, @Validated @RequestBody Beer beer) {
-        boolean updated = beerService.updateById(id, beer);
-        return updated ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        // We keep the controller's semantics: update only if the resource exists.
+        // Service offers only create(), so we check existence here and then delegate to create().
+        if (beerService.findById(id).isPresent()) {
+            beer.setId(id); // ensure update of the existing row
+            beerService.create(beer); // save performs update when id exists
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @DeleteMapping("/{id}")

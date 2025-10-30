@@ -8,6 +8,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service implementation using a single write operation: create(Beer).
+ *
+ * Spring Data JPA's save(entity) handles both insert and update based on id:
+ *  - If beer.getId() is null -> INSERT
+ *  - If beer.getId() is not null and exists -> UPDATE
+ */
 @Service
 @RequiredArgsConstructor
 public class BeerServiceImpl implements BeerService {
@@ -16,6 +23,7 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Beer create(Beer beer) {
+        // Delegate to repository.save which performs insert or update depending on id
         return beerRepository.save(beer);
     }
 
@@ -27,19 +35,6 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public List<Beer> findAll() {
         return beerRepository.findAll();
-    }
-
-    @Override
-    public boolean updateById(Integer id, Beer beer) {
-        return beerRepository.findById(id).map(existing -> {
-            existing.setBeerName(beer.getBeerName());
-            existing.setBeerStyle(beer.getBeerStyle());
-            existing.setUpc(beer.getUpc());
-            existing.setQuantityOnHand(beer.getQuantityOnHand());
-            existing.setPrice(beer.getPrice());
-            beerRepository.save(existing);
-            return true;
-        }).orElse(false);
     }
 
     @Override

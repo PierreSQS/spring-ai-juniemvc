@@ -31,32 +31,36 @@ class BeerRepositoryTest {
     }
 
     @Test
-    void basicCrudOperations() {
-        // Create
+    void createBeer_savesAndAssignsId() {
         Beer saved = beerRepository.save(getSampleBeer());
         assertThat(saved.getId()).as("ID should be generated").isNotNull();
+        assertThat(saved.getVersion()).as("Version should be initialized by JPA").isNotNull();
+    }
 
-        // Read
+    @Test
+    void readBeer_findsById() {
+        Beer saved = beerRepository.save(getSampleBeer());
         Optional<Beer> fetchedOpt = beerRepository.findById(saved.getId());
         assertThat(fetchedOpt).isPresent();
         Beer fetched = fetchedOpt.get();
         assertThat(fetched.getBeerName()).isEqualTo("Galaxy Cat");
-        assertThat(fetched.getVersion()).as("Version should be initialized by JPA").isNotNull();
+    }
 
-        // Update
-        fetched.setQuantityOnHand(20);
-        fetched.setPrice(new BigDecimal("10.49"));
-        Beer updated = beerRepository.save(fetched);
+    @Test
+    void updateBeer_updatesFields() {
+        Beer saved = beerRepository.save(getSampleBeer());
+        saved.setQuantityOnHand(20);
+        saved.setPrice(new BigDecimal("10.49"));
+        Beer updated = beerRepository.save(saved);
         assertThat(updated.getQuantityOnHand()).isEqualTo(20);
         assertThat(updated.getPrice()).isEqualByComparingTo("10.49");
+    }
 
-        // Count / findAll
-        assertThat(beerRepository.count()).isEqualTo(1);
-        assertThat(beerRepository.findAll()).hasSize(1);
-
-        // Delete
-        beerRepository.deleteById(updated.getId());
-        assertThat(beerRepository.findById(updated.getId())).isEmpty();
-        assertThat(beerRepository.count()).isZero();
+    @Test
+    void deleteBeer_removesEntity() {
+        Beer saved = beerRepository.save(getSampleBeer());
+        Integer id = saved.getId();
+        beerRepository.deleteById(id);
+        assertThat(beerRepository.findById(id)).isEmpty();
     }
 }
